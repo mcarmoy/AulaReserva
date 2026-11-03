@@ -23,4 +23,5 @@ jobs:
             .github/actions/validar-aulareserva/action.yml
 
       - name: Mostrar resultado
-        run: echo "Rutas verificadas por la Action: ${{ steps.validacion.outputs.total }}"
+        run: |
+          echo "Rutas verificadas por la Action: ${{ steps.validacion.outputs.total }}"
