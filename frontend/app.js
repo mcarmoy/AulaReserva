@@ -2,6 +2,7 @@ const API_URL = 'http://localhost:8000';
 
 async function cargarAulas() {
   const contenedor = document.getElementById('lista-aulas');
+  const selectAula = document.getElementById('aula');
 
   try {
     const respuesta = await fetch(API_URL);
@@ -23,6 +24,10 @@ async function cargarAulas() {
 
       tarjeta.append(nombre, capacidad);
       contenedor.appendChild(tarjeta);
+      const opcion = document.createElement('option');
+      opcion.value = aula.id;
+      opcion.textContent = `${aula.nombre} (${aula.capacidad} plazas)`;
+      selectAula.appendChild(opcion);
     });
   } catch (error) {
     contenedor.textContent = 'No se han podido cargar las aulas. ¿Está arrancada la API?';
