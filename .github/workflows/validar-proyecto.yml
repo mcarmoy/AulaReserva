@@ -21,6 +21,7 @@ jobs:
             frontend/app.js
             backend/public/index.php
             .github/actions/validar-aulareserva/action.yml
+            frontend/no-existe.html
 
       - name: Mostrar resultado
         run: |
