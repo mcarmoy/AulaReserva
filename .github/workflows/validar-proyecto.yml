@@ -2,12 +2,30 @@ name: Validar proyecto AulaReserva
 
 on:
   push:
+    branches:
+      - develop
+      - 'feature/**'
+  pull_request:
+    branches:
+      - develop
   workflow_dispatch:
 
 jobs:
   validar:
     runs-on: ubuntu-latest
     steps:
+      - name: Mostrar evento
+        env:
+          EVENTO: ${{ github.event_name }}
+          REFERENCIA: ${{ github.ref }}
+          RAMA_ORIGEN: ${{ github.head_ref }}
+          RAMA_DESTINO: ${{ github.base_ref }}
+        run: |
+          echo "Evento: $EVENTO"
+          echo "Referencia: $REFERENCIA"
+          echo "Rama origen (solo en PR): $RAMA_ORIGEN"
+          echo "Rama destino (solo en PR): $RAMA_DESTINO"
+
       - name: Obtener repositorio
         uses: actions/checkout@v7
 
@@ -19,6 +37,7 @@ jobs:
             README.md
             frontend/index.html
             frontend/app.js
+            frontend/reserva.js
             backend/public/index.php
             .github/actions/validar-aulareserva/action.yml
 
