@@ -34,5 +34,5 @@ foreach ($campos as $campo) {
     }
 }
 
-http_response_code(201);
+http_response_code(201)
 echo json_encode(['mensaje' => 'Reserva recibida correctamente'], JSON_UNESCAPED_UNICODE);
