@@ -10,37 +10,54 @@ on:
       - develop
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: validar-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validar:
+  frontend:
     runs-on: ubuntu-latest
     steps:
-      - name: Mostrar evento
-        env:
-          EVENTO: ${{ github.event_name }}
-          REFERENCIA: ${{ github.ref }}
-          RAMA_ORIGEN: ${{ github.head_ref }}
-          RAMA_DESTINO: ${{ github.base_ref }}
-        run: |
-          echo "Evento: $EVENTO"
-          echo "Referencia: $REFERENCIA"
-          echo "Rama origen (solo en PR): $RAMA_ORIGEN"
-          echo "Rama destino (solo en PR): $RAMA_DESTINO"
-
       - name: Obtener repositorio
         uses: actions/checkout@v7
 
-      - name: Validar estructura del proyecto
-        id: validacion
+      - name: Comprobar archivos frontend
         uses: ./.github/actions/validar-aulareserva
         with:
           rutas: |
-            README.md
             frontend/index.html
             frontend/app.js
             frontend/reserva.js
-            backend/public/index.php
-            .github/actions/validar-aulareserva/action.yml
 
-      - name: Mostrar resultado
+      - name: Comprobar sintaxis JavaScript
         run: |
-          echo "Rutas verificadas por la Action: ${{ steps.validacion.outputs.total }}"
+          node --check frontend/app.js
+          node --check frontend/reserva.js
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener repositorio
+        uses: actions/checkout@v7
+
+      - name: Comprobar archivos backend
+        uses: ./.github/actions/validar-aulareserva
+        with:
+          rutas: |
+            backend/public/index.php
+            backend/public/reservas.php
+
+      - name: Comprobar sintaxis PHP
+        run: |
+          php -l backend/public/index.php
+          php -l backend/public/reservas.php
+
+  resultado:
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mostrar resultado
+        run: echo "Frontend y backend correctos"
