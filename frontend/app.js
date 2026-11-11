@@ -1,11 +1,12 @@
-const API_URL = 'http://localhost:8000';
+// El frontend y la API se sirven desde el mismo servidor (router.php)
+const API_URL = '/api';
 
 async function cargarAulas() {
   const contenedor = document.getElementById('lista-aulas');
   const selectAula = document.getElementById('aula');
 
   try {
-    const respuesta = await fetch(API_URL);
+    const respuesta = await fetch(`${API_URL}/aulas`);
     if (!respuesta.ok) {
       throw new Error(`Error HTTP ${respuesta.status}`);
     }
@@ -20,10 +21,11 @@ async function cargarAulas() {
       nombre.textContent = aula.nombre;
 
       const capacidad = document.createElement('p');
-      capacidad.textContent = `Capacidad: ${aula.capacidad} personas`;
+      capacidad.textContent = `Capacidad: ${aula.capacidad} personas · ${aula.ubicacion}`;
 
       tarjeta.append(nombre, capacidad);
       contenedor.appendChild(tarjeta);
+
       const opcion = document.createElement('option');
       opcion.value = aula.id;
       opcion.textContent = `${aula.nombre} (${aula.capacidad} plazas)`;
