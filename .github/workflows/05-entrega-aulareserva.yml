@@ -46,7 +46,7 @@ jobs:
       - name: Comprobar existen archivos
         run: |
             test -f entrega/frontend/index.html
-            test -f entrega/backend/public/index.php
+            test -f entrega/backend/public/archivo-inexistente.php
             test -f entrega/database/schema.sql
             test -f entrega/version.txt
 
