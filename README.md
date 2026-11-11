@@ -1,65 +1,89 @@
 # AulaReserva
 
-AulaReserva será una aplicación web para consultar aulas y gestionar sus reservas.
+AulaReserva es una aplicación web para consultar aulas y gestionar sus reservas.
 
-## Estado actual: fase 4
+## Estado actual: fase 5
 
-- API en PHP que devuelve las aulas disponibles en formato JSON.
-- Interfaz web que consulta la API y muestra las aulas.
-- Formulario de reserva (aula, fecha, hora y responsable) con validación en JavaScript.
-- Envío de la reserva al backend (`reservas.php`) mediante `fetch` con método POST.
-- Action local que valida la estructura mínima del proyecto.
-- Workflow con jobs en paralelo, dependencias (`needs`) y control de concurrencia.
+- API en PHP con las aulas y las reservas guardadas en una base de datos SQLite.
+- Interfaz web que muestra las aulas, permite solicitar reservas y lista las reservas guardadas con opción de cancelarlas.
+- Las reservas se mantienen al recargar la página, y la API rechaza las reservas duplicadas.
+- Action local que valida la estructura del proyecto.
+- Workflow de validación con jobs en paralelo, dependencias (`needs`) y control de concurrencia.
+- Workflow de entrega que genera un paquete de la aplicación como artefacto y lo comprueba.
+
+## API
+
+| Método | Ruta | Funcionalidad | Código |
+|---|---|---|---|
+| `GET` | `/api/health` | Comprobar que la API funciona | `200` |
+| `GET` | `/api/aulas` | Obtener el listado de aulas | `200` |
+| `POST` | `/api/reservas` | Crear una reserva | `201` |
+| `GET` | `/api/reservas` | Consultar las reservas | `200` |
+| `DELETE` | `/api/reservas/{id}` | Cancelar una reserva | `200` |
+| `POST` | `/api/reservas` | Reserva duplicada | `409` |
 
 ## Estructura
 
 ```text
 AulaReserva/
 ├── README.md
+├── .gitignore
 ├── frontend/
 │   ├── index.html
 │   ├── app.js
 │   └── reserva.js
 ├── backend/
-│   └── public/
-│       ├── index.php
-│       └── reservas.php
+│   ├── public/
+│   │   ├── index.php
+│   │   └── router.php
+│   └── src/
+│       └── bootstrap.php
+├── database/
+│   └── schema.sql
 └── .github/
     ├── actions/
     │   └── validar-aulareserva/
     │       └── action.yml
     └── workflows/
-        └── validar-proyecto.yml
+        ├── validar-proyecto.yml
+        └── 05-entrega-aulareserva.yml
 ```
 
 ## Cómo ejecutarlo en local
 
-API (backend):
+Requisitos: PHP con la extensión `pdo_sqlite` activada (se comprueba con `php -m`).
+
+Desde la raíz del proyecto:
 
 ```bash
-php -S localhost:8000 -t backend/public
+php -S localhost:8000 -t backend/public backend/public/router.php
 ```
 
-Interfaz (frontend), en otra terminal:
+Después se abre http://localhost:8000 en el navegador.
 
-```bash
-php -S localhost:5500 -t frontend
-```
-
-Después se abre http://localhost:5500 en el navegador.
+La base de datos se crea automáticamente en `data/aulareserva.sqlite` a partir de `database/schema.sql` la primera vez que se usa la API. Su ubicación se puede cambiar con la variable de entorno `DB_PATH`. La carpeta `data/` está en el `.gitignore` y no se sube al repositorio.
 
 ## Integración continua
 
-El workflow `validar-proyecto.yml` se ejecuta con cada `push` a `develop` o a ramas `feature/**`, con cada Pull Request hacia `develop` y de forma manual.
+### `validar-proyecto.yml`
 
-Está dividido en tres jobs:
+Se ejecuta con cada `push` a `develop` o a ramas `feature/**`, con cada Pull Request hacia `develop` y de forma manual. Tiene tres jobs:
 
 | Job | Qué comprueba |
 |---|---|
 | `frontend` | Que existen los archivos del frontend (con la Action local) y la sintaxis JavaScript (`node --check`) |
-| `backend` | Que existen los archivos del backend (con la Action local) y la sintaxis PHP (`php -l`) |
+| `backend` | Que existen los archivos del backend y `database/schema.sql` (con la Action local), y la sintaxis PHP (`php -l`) |
 | `resultado` | Solo se ejecuta si `frontend` y `backend` terminan correctamente (`needs`) |
 
-`frontend` y `backend` se ejecutan en paralelo, cada uno en su propio runner, por eso cada uno hace su `checkout`.
+`frontend` y `backend` se ejecutan en paralelo, cada uno en su propio runner. Con `concurrency` y `cancel-in-progress: true`, un push nuevo cancela la ejecución anterior de la misma rama.
 
-Además, el workflow usa `concurrency` con `cancel-in-progress: true`: si llegan dos ejecuciones seguidas de la misma rama, se cancela la anterior y solo se comprueba el código más reciente.
+### `05-entrega-aulareserva.yml`
+
+Se ejecuta de forma manual (`workflow_dispatch`). Tiene dos jobs:
+
+| Job | Qué hace |
+|---|---|
+| `empaquetar` | Copia `frontend/`, `backend/` y `database/` en `dist/`, crea `dist/version.txt` con la rama, el commit y el número de ejecución, y sube `dist/` como artefacto `AulaReserva-<número de ejecución>` |
+| `comprobar` | Depende de `empaquetar`. Descarga el artefacto en `entrega/`, sin hacer checkout del repositorio, comprueba que contiene los archivos principales y muestra `version.txt` |
+
+La entrega se puede descargar desde **Actions → ejecución → Summary → Artifacts**.
