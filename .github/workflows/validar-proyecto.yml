@@ -48,12 +48,15 @@ jobs:
         with:
           rutas: |
             backend/public/index.php
-            backend/public/reservas.php
+            backend/public/router.php
+            backend/src/bootstrap.php
+            database/schema.sql
 
       - name: Comprobar sintaxis PHP
         run: |
           php -l backend/public/index.php
-          php -l backend/public/reservas.php
+          php -l backend/public/router.php
+          php -l backend/src/bootstrap.php
 
   resultado:
     needs: [frontend, backend]
