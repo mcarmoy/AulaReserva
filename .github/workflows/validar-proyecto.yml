@@ -29,13 +29,14 @@ jobs:
         with:
           rutas: |
             frontend/index.html
-            frontend/app.js
-            frontend/reserva.js
+            frontend/assets/app.js
+            frontend/assets/config.js
+            frontend/assets/styles.css
 
       - name: Comprobar sintaxis JavaScript
         run: |
-          node --check frontend/app.js
-          node --check frontend/reserva.js
+          node --check frontend/assets/app.js
+          node --check frontend/assets/config.js
 
   backend:
     runs-on: ubuntu-latest

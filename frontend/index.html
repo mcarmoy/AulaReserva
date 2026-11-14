@@ -1,114 +1,94 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AulaReserva</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-      background: #f4f6f8;
-    }
-
-    #lista-aulas {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .tarjeta {
-      background: white;
-      border-radius: 8px;
-      padding: 1rem 1.5rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      min-width: 200px;
-    }
-
-    .tarjeta h3 {
-      margin: 0 0 0.5rem;
-      color: #1d3557;
-    }
-
-    #form-reserva {
-      display: grid;
-      gap: 0.5rem;
-      max-width: 400px;
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    #form-reserva input,
-    #form-reserva select {
-      padding: 0.4rem;
-    }
-
-    #form-reserva button {
-      margin-top: 0.5rem;
-      padding: 0.6rem;
-      background: #1d3557;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .error {
-      color: #b00020;
-    }
-
-    .ok {
-      color: #1b7f3b;
-    }
-
-    #lista-reservas button {
-      margin-left: 0.5rem;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="/assets/styles.css">
 </head>
-
 <body>
-  <h1>AulaReserva</h1>
+  <header class="cabecera">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">🏫</span>
+      <div>
+        <h1 id="nombre-app">AulaReserva</h1>
+        <p>Gestión de reservas de aulas</p>
+      </div>
+    </div>
+    <span id="entorno-app" class="entorno">—</span>
+  </header>
 
-  <section>
-    <h2>Aulas disponibles</h2>
-    <div id="lista-aulas">Cargando aulas...</div>
-  </section>
+  <main class="contenido">
+    <section class="panel">
+      <h2>Panel de reservas</h2>
+      <p class="subtitulo">Consulta las aulas disponibles y organiza tus reservas.</p>
 
-  <section>
-    <h2>Solicitar reserva</h2>
-    <form id="form-reserva">
-      <label for="aula">Aula</label>
-      <select id="aula" name="aula">
-        <option value="">-- Selecciona un aula --</option>
-      </select>
+      <div class="contadores">
+        <article class="contador">
+          <span class="icono" aria-hidden="true">🏫</span>
+          <div>
+            <p>Aulas disponibles</p>
+            <strong id="total-aulas">0</strong>
+          </div>
+        </article>
+        <article class="contador">
+          <span class="icono" aria-hidden="true">📅</span>
+          <div>
+            <p>Reservas activas</p>
+            <strong id="total-reservas">0</strong>
+          </div>
+        </article>
+      </div>
+    </section>
 
-      <label for="fecha">Fecha</label>
-      <input type="date" id="fecha" name="fecha">
+    <section class="panel">
+      <h2>Aulas</h2>
+      <div id="lista-aulas" class="tarjetas">Cargando aulas...</div>
+    </section>
 
-      <label for="hora">Hora</label>
-      <input type="time" id="hora" name="hora">
+    <section class="panel">
+      <h2>Nueva reserva</h2>
+      <form id="form-reserva" class="formulario">
+        <label for="aula">Aula
+          <select id="aula" name="aula">
+            <option value="">-- Selecciona un aula --</option>
+          </select>
+        </label>
+        <label for="fecha">Fecha
+          <input type="date" id="fecha" name="fecha">
+        </label>
+        <label for="hora">Hora
+          <input type="time" id="hora" name="hora" step="3600">
+        </label>
+        <label for="responsable">Responsable
+          <input type="text" id="responsable" name="responsable" placeholder="Nombre y apellidos">
+        </label>
+        <button type="submit">Confirmar reserva</button>
+      </form>
+      <div id="mensaje" class="mensaje" role="status"></div>
+    </section>
 
-      <label for="responsable">Responsable</label>
-      <input type="text" id="responsable" name="responsable" placeholder="Nombre y apellidos">
+    <section class="panel">
+      <h2>Reservas guardadas</h2>
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Aula</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Responsable</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabla-reservas"></tbody>
+        </table>
+      </div>
+      <p id="sin-reservas" class="vacio">Todavía no hay reservas.</p>
+    </section>
+  </main>
 
-      <button type="submit">Solicitar reserva</button>
-    </form>
-    <div id="mensaje-reserva"></div>
-  </section>
-
-
-  <section>
-    <h2>Reservas guardadas</h2>
-    <ul id="lista-reservas">Cargando reservas...</ul>
-  </section>
-
-  <script src="app.js" defer></script>
-  <script src="reserva.js" defer></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/app.js" defer></script>
 </body>
-
 </html>
