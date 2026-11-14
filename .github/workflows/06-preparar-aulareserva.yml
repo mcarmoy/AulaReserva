@@ -1,0 +1,37 @@
+name: 06 - Preparar AulaReserva
+on: workflow_dispatch
+permissions:
+    contents: read
+
+jobs:
+    preparar:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Obtener repositorio
+          uses: actions/checkout@v7
+
+        - name: Generar config.js
+          env:
+            APP_NAME: ${{ vars.APP_NAME }}
+            APP_ENV: ${{ vars.APP_ENV }}
+          run: |
+            echo "window.APP_CONFIG = { nombre: '$APP_NAME', entorno: '$APP_ENV'};" > frontend/assets/config.js
+            cat frontend/assets/config.js
+
+        - name: Preparar carpeta
+          run: |
+            mkdir dist
+            cp -r frontend dist/
+            cp -r backend dist/
+            cp -r database dist/
+
+        - name: Subir como artefacto
+          uses: actions/upload-artifact@v7
+          with:
+            name: ${{ vars.APP_NAME }}-${{ vars.APP_ENV }}-${{ github.run_number }}
+            path: dist/
+            if-no-files-found: error
+
+
+
+
