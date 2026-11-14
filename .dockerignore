@@ -1,0 +1,12 @@
+.git
+.github
+.env
+*.pem
+*.key
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+data/
+dist/
+tests/
