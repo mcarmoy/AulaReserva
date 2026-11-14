@@ -2,14 +2,15 @@
 
 AulaReserva es una aplicación web para consultar aulas y gestionar sus reservas.
 
-## Estado actual: fase 5
+## Estado actual: fase 6
 
 - API en PHP con las aulas y las reservas guardadas en una base de datos SQLite.
-- Interfaz web que muestra las aulas, permite solicitar reservas y lista las reservas guardadas con opción de cancelarlas.
-- Las reservas se mantienen al recargar la página, y la API rechaza las reservas duplicadas.
+- Interfaz web responsive con cabecera, contadores, tarjetas de aulas, formulario de reserva y tabla de reservas con opción de cancelarlas.
+- La interfaz muestra el entorno (desarrollo o producción) a partir de un archivo de configuración `config.js`.
 - Action local que valida la estructura del proyecto.
 - Workflow de validación con jobs en paralelo, dependencias (`needs`) y control de concurrencia.
 - Workflow de entrega que genera un paquete de la aplicación como artefacto y lo comprueba.
+- Workflow que genera `config.js` con variables de GitHub Actions y prepara una entrega configurada.
 
 ## API
 
@@ -30,8 +31,10 @@ AulaReserva/
 ├── .gitignore
 ├── frontend/
 │   ├── index.html
-│   ├── app.js
-│   └── reserva.js
+│   └── assets/
+│       ├── config.js
+│       ├── styles.css
+│       └── app.js
 ├── backend/
 │   ├── public/
 │   │   ├── index.php
@@ -46,7 +49,8 @@ AulaReserva/
     │       └── action.yml
     └── workflows/
         ├── validar-proyecto.yml
-        └── 05-entrega-aulareserva.yml
+        ├── 05-entrega-aulareserva.yml
+        └── 06-preparar-aulareserva.yml
 ```
 
 ## Cómo ejecutarlo en local
@@ -63,6 +67,16 @@ Después se abre http://localhost:8000 en el navegador.
 
 La base de datos se crea automáticamente en `data/aulareserva.sqlite` a partir de `database/schema.sql` la primera vez que se usa la API. Su ubicación se puede cambiar con la variable de entorno `DB_PATH`. La carpeta `data/` está en el `.gitignore` y no se sube al repositorio.
 
+## Configuración
+
+`frontend/assets/config.js` indica el nombre de la aplicación y el entorno:
+
+```javascript
+window.APP_CONFIG = { nombre: "AulaReserva", entorno: "development" };
+```
+
+En local se usan los valores de desarrollo del repositorio. En las entregas, el archivo lo genera GitHub Actions a partir de las variables `APP_NAME` y `APP_ENV`. Como el navegador descarga este archivo, solo puede contener valores públicos: nunca contraseñas, tokens ni claves.
+
 ## Integración continua
 
 ### `validar-proyecto.yml`
@@ -71,7 +85,7 @@ Se ejecuta con cada `push` a `develop` o a ramas `feature/**`, con cada Pull Req
 
 | Job | Qué comprueba |
 |---|---|
-| `frontend` | Que existen los archivos del frontend (con la Action local) y la sintaxis JavaScript (`node --check`) |
+| `frontend` | Que existen `index.html` y los archivos de `assets/` (con la Action local) y la sintaxis JavaScript (`node --check`) |
 | `backend` | Que existen los archivos del backend y `database/schema.sql` (con la Action local), y la sintaxis PHP (`php -l`) |
 | `resultado` | Solo se ejecuta si `frontend` y `backend` terminan correctamente (`needs`) |
 
@@ -79,11 +93,12 @@ Se ejecuta con cada `push` a `develop` o a ramas `feature/**`, con cada Pull Req
 
 ### `05-entrega-aulareserva.yml`
 
-Se ejecuta de forma manual (`workflow_dispatch`). Tiene dos jobs:
+Se ejecuta de forma manual. El job `empaquetar` copia `frontend/`, `backend/` y `database/` en `dist/`, crea `version.txt` y sube `dist/` como artefacto. El job `comprobar` descarga el artefacto, sin hacer checkout, y comprueba que contiene los archivos principales.
 
-| Job | Qué hace |
-|---|---|
-| `empaquetar` | Copia `frontend/`, `backend/` y `database/` en `dist/`, crea `dist/version.txt` con la rama, el commit y el número de ejecución, y sube `dist/` como artefacto `AulaReserva-<número de ejecución>` |
-| `comprobar` | Depende de `empaquetar`. Descarga el artefacto en `entrega/`, sin hacer checkout del repositorio, comprueba que contiene los archivos principales y muestra `version.txt` |
+### `06-preparar-aulareserva.yml`
+
+Se ejecuta de forma manual. Lee las variables `APP_NAME` y `APP_ENV` (**Settings → Secrets and variables → Actions → Variables**), genera `frontend/assets/config.js` en el runner, prepara `dist/` y lo sube como artefacto `AulaReserva-<entorno>-<número de ejecución>`.
+
+Para generar una entrega de otro entorno basta con cambiar el valor de `APP_ENV` en GitHub, sin modificar el código ni el workflow.
 
 La entrega se puede descargar desde **Actions → ejecución → Summary → Artifacts**.
