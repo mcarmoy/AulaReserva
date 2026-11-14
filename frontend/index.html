@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AulaReserva</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">🏫</span>
+      <div>
+        <h1 id="nombre-app">AulaReserva</h1>
+        <p>Gestión de reservas de aulas</p>
+      </div>
+    </div>
+    <span id="entorno-app" class="entorno">—</span>
+  </header>
+
+  <main class="contenido">
+    <section class="panel">
+      <h2>Panel de reservas</h2>
+      <p class="subtitulo">Consulta las aulas disponibles y organiza tus reservas.</p>
+
+      <div class="contadores">
+        <article class="contador">
+          <span class="icono" aria-hidden="true">🏫</span>
+          <div>
+            <p>Aulas disponibles</p>
+            <strong id="total-aulas">0</strong>
+          </div>
+        </article>
+        <article class="contador">
+          <span class="icono" aria-hidden="true">📅</span>
+          <div>
+            <p>Reservas activas</p>
+            <strong id="total-reservas">0</strong>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Aulas</h2>
+      <div id="lista-aulas" class="tarjetas">Cargando aulas...</div>
+    </section>
+
+    <section class="panel">
+      <h2>Nueva reserva</h2>
+      <form id="form-reserva" class="formulario">
+        <label for="aula">Aula
+          <select id="aula" name="aula">
+            <option value="">-- Selecciona un aula --</option>
+          </select>
+        </label>
+        <label for="fecha">Fecha
+          <input type="date" id="fecha" name="fecha">
+        </label>
+        <label for="hora">Hora
+          <input type="time" id="hora" name="hora" step="3600">
+        </label>
+        <label for="responsable">Responsable
+          <input type="text" id="responsable" name="responsable" placeholder="Nombre y apellidos">
+        </label>
+        <button type="submit">Confirmar reserva</button>
+      </form>
+      <div id="mensaje" class="mensaje" role="status"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Reservas guardadas</h2>
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Aula</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Responsable</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabla-reservas"></tbody>
+        </table>
+      </div>
+      <p id="sin-reservas" class="vacio">Todavía no hay reservas.</p>
+    </section>
+  </main>
+
+  <script src="/assets/config.js"></script>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>
